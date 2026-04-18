@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 144" role="img" aria-label="Bottle placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f8eddc"/>
+      <stop offset="100%" stop-color="#e5d2b3"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#886347"/>
+      <stop offset="100%" stop-color="#3f2a1a"/>
+    </linearGradient>
+  </defs>
+  <rect width="96" height="144" rx="10" fill="url(#bg)"/>
+  <rect x="40" y="12" width="16" height="16" rx="3" fill="#6d4c33"/>
+  <rect x="34" y="24" width="28" height="24" rx="6" fill="#7d5b3e"/>
+  <rect x="24" y="42" width="48" height="90" rx="12" fill="url(#glass)"/>
+  <rect x="30" y="58" width="36" height="30" rx="4" fill="#e8d8be" opacity="0.9"/>
+  <rect x="33" y="61" width="30" height="2" fill="#b79870"/>
+  <rect x="33" y="66" width="30" height="2" fill="#b79870"/>
+  <rect x="33" y="71" width="30" height="2" fill="#b79870"/>
+  <rect x="33" y="76" width="22" height="2" fill="#b79870"/>
+  <text x="48" y="122" text-anchor="middle" font-size="9" fill="#f4e7d5" font-family="Arial, sans-serif">NO IMAGE</text>
+</svg>

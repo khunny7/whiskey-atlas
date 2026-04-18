@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum WhiskeyCategory {
+  BOURBON
+  RYE
+  TENNESSEE
+  WHEAT
+  CORN
+  AMERICAN_SINGLE_MALT
+  AMERICAN
+}
+
+enum Availability {
+  CORE
+  ALLOCATED
+  LIMITED
+  DISCONTINUED
+}
+
+enum ConfidenceLevel {
+  HIGH
+  MEDIUM
+  LOW
+  UNKNOWN
+}
+
+enum SourceType {
+  OFFICIAL
+  REFERENCE_ARTICLE
+  RETAIL_REFERENCE
+  INTERNAL_NOTE
+}
+
+model Company {
+  id               String          @id @default(cuid())
+  name             String          @unique
+  slug             String          @unique
+  description      String?
+  websiteUrl       String?
+  state            String?
+  sourceConfidence ConfidenceLevel @default(MEDIUM)
+  brands           Brand[]
+  distilleries     Distillery[]
+  whiskeys         Whiskey[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model Distillery {
+  id               String          @id @default(cuid())
+  name             String          @unique
+  slug             String          @unique
+  companyId        String?
+  state            String?
+  city             String?
+  websiteUrl       String?
+  description      String?
+  sourceConfidence ConfidenceLevel @default(MEDIUM)
+  company          Company?        @relation(fields: [companyId], references: [id])
+  brands           Brand[]
+  whiskeys         Whiskey[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([companyId])
+}
+
+model Brand {
+  id               String          @id @default(cuid())
+  name             String          @unique
+  slug             String          @unique
+  companyId        String?
+  distilleryId     String?
+  description      String?
+  sourceConfidence ConfidenceLevel @default(MEDIUM)
+  company          Company?        @relation(fields: [companyId], references: [id])
+  distillery       Distillery?     @relation(fields: [distilleryId], references: [id])
+  whiskeys         Whiskey[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([companyId])
+  @@index([distilleryId])
+}
+
+model Whiskey {
+  id                   String          @id @default(cuid())
+  name                 String
+  slug                 String          @unique
+  brandId              String?
+  companyId            String?
+  distilleryId         String?
+  category             WhiskeyCategory
+  style                String?
+  releaseType          String?
+  state                String?
+  availability         Availability    @default(CORE)
+  msrpUsd              Decimal?        @db.Decimal(10, 2)
+  proof                Decimal?        @db.Decimal(5, 1)
+  abv                  Decimal?        @db.Decimal(5, 2)
+  ageStatementYears    Decimal?        @db.Decimal(5, 1)
+  ageText              String?
+  mashBillText         String?
+  mashBillKnown        Boolean         @default(false)
+  tastingNose          String?
+  tastingPalate        String?
+  tastingFinish        String?
+  recommendationNotes  String?
+  sourceConfidence     ConfidenceLevel @default(MEDIUM)
+  brand                Brand?          @relation(fields: [brandId], references: [id])
+  company              Company?        @relation(fields: [companyId], references: [id])
+  distillery           Distillery?     @relation(fields: [distilleryId], references: [id])
+  flavorTags           WhiskeyFlavorTag[]
+  similarityFrom       WhiskeySimilarity[] @relation("SimilarityFrom")
+  similarityTo         WhiskeySimilarity[] @relation("SimilarityTo")
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  @@index([name])
+  @@index([brandId])
+  @@index([companyId])
+  @@index([distilleryId])
+  @@index([category])
+  @@index([availability])
+}
+
+model FlavorTag {
+  id          String             @id @default(cuid())
+  name        String             @unique
+  slug        String             @unique
+  category    String?
+  description String?
+  whiskeys    WhiskeyFlavorTag[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model WhiskeyFlavorTag {
+  id          String    @id @default(cuid())
+  whiskeyId   String
+  flavorTagId String
+  intensity   Int?
+  whiskey     Whiskey   @relation(fields: [whiskeyId], references: [id])
+  flavorTag   FlavorTag @relation(fields: [flavorTagId], references: [id])
+
+  @@unique([whiskeyId, flavorTagId])
+  @@index([flavorTagId])
+}
+
+model WhiskeySimilarity {
+  id                String   @id @default(cuid())
+  whiskeyId         String
+  similarWhiskeyId  String
+  overallScore      Decimal  @db.Decimal(5, 4)
+  flavorScore       Decimal? @db.Decimal(5, 4)
+  mashBillScore     Decimal? @db.Decimal(5, 4)
+  proofScore        Decimal? @db.Decimal(5, 4)
+  ageScore          Decimal? @db.Decimal(5, 4)
+  priceScore        Decimal? @db.Decimal(5, 4)
+  producerScore     Decimal? @db.Decimal(5, 4)
+  algorithmVersion  String
+  whiskey           Whiskey  @relation("SimilarityFrom", fields: [whiskeyId], references: [id])
+  similarWhiskey    Whiskey  @relation("SimilarityTo", fields: [similarWhiskeyId], references: [id])
+  createdAt         DateTime @default(now())
+
+  @@unique([whiskeyId, similarWhiskeyId, algorithmVersion])
+  @@index([similarWhiskeyId])
+}
+
+model SourceReference {
+  id          String          @id @default(cuid())
+  entityType  String
+  entityId    String
+  fieldName   String?
+  label       String
+  sourceType  SourceType
+  url         String
+  confidence  ConfidenceLevel @default(MEDIUM)
+  note        String?
+  createdAt   DateTime        @default(now())
+
+  @@index([entityType, entityId])
+  @@index([fieldName])
+}
