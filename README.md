@@ -40,11 +40,44 @@ If you later need heavy relational analytics, PostgreSQL may still be better for
 1. Create a Firebase project in Firebase Console.
 2. Enable Firestore Database.
 3. Create a web app in your Firebase project.
-4. Copy `.env.example` to `.env` and fill in your Firebase values.
+4. Copy `.env.example` to `.env`.
 5. Create a Firestore collection named `whiskeys`.
-6. Import records from `data/whiskeys.seed.json` into that collection.
+6. Seed records from `data/whiskeys.seed.json` into that collection.
 
 Each document can match a bottle object from the seed file.
+
+## 6) Deploy to Firebase Hosting
+
+This repo is preconfigured for Firebase project `whiskey-atlas`.
+
+1. Login to Firebase CLI:
+
+```bash
+npx firebase-tools login
+```
+
+2. Build and deploy:
+
+```bash
+npm run deploy
+```
+
+## 7) Seed Firestore from local JSON
+
+1. In Firebase Console, create a service account key (JSON) for project `whiskey-atlas`.
+2. Set env var in your terminal:
+
+```bash
+$env:GOOGLE_APPLICATION_CREDENTIALS="D:\path\to\service-account.json"
+```
+
+3. Run seed script:
+
+```bash
+npm run seed:firestore
+```
+
+The script writes to collection `whiskeys` using `slug` as document ID.
 
 ## 4) Firestore shape
 
